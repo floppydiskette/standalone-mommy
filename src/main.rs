@@ -38,13 +38,15 @@ fn main() {
 }
 
 fn real_main() -> Result<i32, Box<dyn std::error::Error>> {
-    let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".to_owned());
-    let mut arg_iter = std::env::args();
-    let _cargo = arg_iter.next();
-    let _mommy = arg_iter.next();
+    let mut args = std::env::args();
+    let _ = args.next(); // skip the program name
+    let command = args.next().unwrap_or_else(|| {
+        eprintln!("{}", select_response(ResponseType::Negative));
+        std::process::exit(-1)
+    });
 
-    let mut cmd = std::process::Command::new(cargo);
-    cmd.args(arg_iter);
+    let mut cmd = std::process::Command::new(command);
+    cmd.args(args);
     let status = cmd.status()?;
     eprintln!("\x1b[1m");
     if status.success() {
